@@ -37,6 +37,15 @@
         "tsConfigPath": "apps/order/tsconfig.app.json"
       }
     },
+    "prisma": {
+      "type": "library",
+      "root": "libs/prisma",
+      "entryFile": "index",
+      "sourceRoot": "libs/prisma/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/prisma/tsconfig.lib.json"
+      }
+    },
     "restaurant": {
       "type": "application",
       "root": "apps/restaurant",
