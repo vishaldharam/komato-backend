@@ -13,16 +13,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  role      Role     @default(CUSTOMER)
-  isBlocked Boolean @default(false)
-  createdAt DateTime @default(now())
+  id              String           @id @default(uuid())
+  email           String           @unique
+  role            Role             @default(CUSTOMER)
+  isBlocked       Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  userProfile     UserProfile?
+  userAddresses   UserAddresses[]
+  userPreferences UserPreferences?
 }
 
+model UserProfile {
+  id        String    @id @default(uuid())
+  userId    String    @unique
+  name      String?
+  imgSrcURL String? // Full S3 image URL to be shown on frontend
+  imgID     String? // S3 key (folder path/filename) for deletion or updates  
+  phone     String?
+  gender    String?
+  dob       DateTime?
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model UserAddresses {
+  id        String   @id @default(uuid())
+  userId    String
+  label     String? // e.g. "Home", "Office"
+  address   String
+  city      String
+  state     String
+  pincode   String
+  district  String
+  latitude  Float
+  longitude Float
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model UserPreferences {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  vegOnly     Boolean  @default(false)
+  cuisineTags String[] @default([]) // example: ["Italian", "South Indian"]
+  maxDistance Int? // e.g. 3000 for 3km search radius
+  user        User     @relation(fields: [userId], references: [id])
+}
 
 enum Role {
   CUSTOMER

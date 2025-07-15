@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { LoggerService } from '@app/common';
+import { PrismaService } from '@app/prisma';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(private readonly primsaService: PrismaService, private loggerService: LoggerService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -13,7 +15,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    // You can add more checks here if needed
+    const isUserExist = this.primsaService.user.findUnique({
+      where: {
+        id: payload.sub,
+      },
+    });
+
+    if (!isUserExist) {
+      this.loggerService.warn('User does not exists!')
+      throw new UnauthorizedException('User does not exist!');
+    }
+
     return {
       id: payload.sub,
       email: payload.email,
