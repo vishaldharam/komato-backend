@@ -8,6 +8,10 @@ import { OtpModule } from 'apps/auth/src/otp/otp.module';
 import { APP_GUARD } from '@nestjs/core';
 import { GlobalJwtAuthGuard } from 'apps/auth/src/global.jwt.auth.guard';
 import { JwtStrategy } from 'apps/auth/src/jwt.strategy';
+import { ProfileModule } from './profile/profile.module';
+import { PreferencesModule } from './preferences/preferences.module';
+import { GCPModule } from './gcp/gcp.module';
+import { AwsModule } from './aws/aws.module';
 
 @Module({
   imports: [
@@ -18,6 +22,10 @@ import { JwtStrategy } from 'apps/auth/src/jwt.strategy';
       envFilePath: `.env`,
     }),
     OtpModule,
+    ProfileModule,
+    PreferencesModule,
+    GCPModule,
+    AwsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -26,7 +34,7 @@ import { JwtStrategy } from 'apps/auth/src/jwt.strategy';
       provide: APP_GUARD,
       useClass: GlobalJwtAuthGuard,
     },
-    JwtStrategy
+    JwtStrategy,
   ],
 })
 export class AppModule {}
