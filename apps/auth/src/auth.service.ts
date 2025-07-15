@@ -71,12 +71,12 @@ export class AuthService {
       };
 
       const accessToken = await this.jwtService.signAsync(payload, {
-        expiresIn: '2m',
+        expiresIn: '30m',
         secret: process.env.JWT_SECRET,
       });
 
       const refreshToken = await this.jwtService.signAsync(payload, {
-        expiresIn: '5m',
+        expiresIn: '7d',
         secret: process.env.JWT_REFRESH_SECRET,
       });
 
@@ -134,12 +134,12 @@ export class AuthService {
 
       const newAccessToken = await this.jwtService.signAsync(newPayload, {
         secret: process.env.JWT_SECRET,
-        expiresIn: '2m',
+        expiresIn: '30m',
       });
 
       const newRefreshToken = await this.jwtService.signAsync(newPayload, {
         secret: process.env.JWT_REFRESH_SECRET,
-        expiresIn: '5m',
+        expiresIn: '7d',
       });
 
       // 5. Store new refresh token in Redis
