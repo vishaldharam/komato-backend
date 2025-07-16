@@ -22,6 +22,7 @@ model User {
   userProfile     UserProfile?
   userAddresses   UserAddresses[]
   userPreferences UserPreferences?
+  restaurant      Restaurant[]
 }
 
 model UserProfile {
@@ -61,9 +62,54 @@ model UserPreferences {
   user        User     @relation(fields: [userId], references: [id])
 }
 
+model Restaurant {
+  id                 String                      @id @default(uuid())
+  name               String
+  description        String?
+  category           String?
+  phone              String?
+  email              String?                     @unique
+  bannerUrl          String?
+  gstNo              String
+  logoUrl            String?
+  logoID             String?
+  address            String
+  latitude           Float
+  longitude          Float
+  isBlocked          Boolean?                    @default(false)
+  isVerified         Boolean?                    @default(false)
+  onboardingStatus   RestaurantOnboardingStatus? @default(INITIATED)
+  onboardingComplete Boolean?                    @default(false)
+  createdAt          DateTime                    @default(now())
+  updatedAt          DateTime                    @updatedAt
+  ownerId            String
+  owner              User                        @relation(fields: [ownerId], references: [id])
+  RestaurantDocs     RestaurantDocs[]
+}
+
+model RestaurantDocs {
+  id           String     @id @default(uuid())
+  name         String
+  docID        String //S3 bucket doc ID
+  docUrl       String //signed url to view/download the doc.
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+}
+
 enum Role {
   CUSTOMER
   ADMIN
-  RESTAURANT
-  DELIVERY
+  RESTAURANT_OWNER
+  DELIVERY_BOY
+}
+
+enum RestaurantOnboardingStatus {
+  INITIATED
+  DOCS_PENDING
+  REVIEW
+  VERIFIED
+  REJECTED
+  LIVE
 }
