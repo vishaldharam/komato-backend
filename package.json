@@ -13,6 +13,7 @@
     "start:debug": "nest start --debug --watch",
     "start:auth": "nest start auth --watch",
     "start:order": "nest start order --watch",
+    "start:rest": "nest start restaurant --watch",
     "start:zomato": "nest start zomato-backend --watch",
     "start:prod": "node dist/apps/zomato-backend/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
