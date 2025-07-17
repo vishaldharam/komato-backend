@@ -23,6 +23,14 @@ model User {
   userAddresses   UserAddresses[]
   userPreferences UserPreferences?
   restaurant      Restaurant[]
+  order           Order[]
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  RESTAURANT_OWNER
+  DELIVERY_BOY
 }
 
 model UserProfile {
@@ -85,7 +93,18 @@ model Restaurant {
   ownerId            String
   owner              User                        @relation(fields: [ownerId], references: [id])
   RestaurantDocs     RestaurantDocs[]
+  order              Order[]
 }
+
+enum RestaurantOnboardingStatus {
+  INITIATED
+  DOCS_PENDING
+  REVIEW
+  VERIFIED
+  REJECTED
+  LIVE
+}
+
 
 model RestaurantDocs {
   id           String     @id @default(uuid())
@@ -98,18 +117,92 @@ model RestaurantDocs {
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
 }
 
-enum Role {
-  CUSTOMER
-  ADMIN
-  RESTAURANT_OWNER
-  DELIVERY_BOY
+model Order {
+  id             String           @id @default(uuid())
+  userId         String
+  restaurantId   String
+  status         OrderStatus      @default(PENDING)
+  paymentType    PaymentType
+  totalAmount    Decimal
+  notes          String? 
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  items          OrderItem[]
+  events         OrderEvent[]
+  statusHistory  OrderStatusHistory[]
+  payment        Payment?
+  user           User              @relation(fields: [userId], references: [id])
+  restaurant     Restaurant        @relation(fields: [restaurantId], references: [id])
+
+
+
+
+  @@index([userId])
+  @@index([restaurantId])
+  @@index([status])
 }
 
-enum RestaurantOnboardingStatus {
-  INITIATED
-  DOCS_PENDING
-  REVIEW
-  VERIFIED
-  REJECTED
-  LIVE
+model Payment {
+  id              String        @id @default(uuid())
+  orderId         String        @unique
+  paymentStatus   PaymentStatus
+  paymentGateway  String?
+  transactionId   String?
+  paidAt          DateTime?
+  createdAt       DateTime      @default(now())
+  order           Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model OrderItem {
+  id           String   @id @default(uuid())
+  orderId      String
+  itemId       String
+  itemName     String
+  quantity     Int
+  pricePerUnit Decimal
+  totalPrice   Decimal  @default(0.00)
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+model OrderEvent {
+  id        String   @id @default(uuid())
+  orderId   String
+  eventType String
+  payload   Json
+  createdAt DateTime @default(now())
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  @@index([orderId])
+}
+
+model OrderStatusHistory {
+  id             String      @id @default(uuid())
+  orderId        String
+  previousStatus OrderStatus?
+  newStatus      OrderStatus
+  changedAt      DateTime    @default(now())
+  changedBy      String?
+  order          Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+enum PaymentType {
+  COD
+  ONLINE
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  PLACED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }
